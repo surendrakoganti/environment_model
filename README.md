@@ -11,11 +11,11 @@
 - [License](#-license)
 
 ## 🧠 Description
-The Environment Model node receives multiple inputs from various modules essential for building a comprehensive understanding of the car’s surroundings. These inputs include the ego vehicle's position and velocity data from the `/odom` topic and a 2D grid map from the `/static_map` topic. Obstacle details are gathered from the `/obstacle_detection` topic, while object detections such as pedestrians or vehicles are received via the `/detection` topic. Additionally, lane boundary information comes from `/lane_info`.
+The Environment Model node receives multiple inputs from various modules essential for building a comprehensive understanding of the car’s surroundings. These inputs include the ego vehicle's position and velocity data from the `/odom` topic. Obstacle details are gathered from the `/obstacle_detection` topic, while object detections such as pedestrians or vehicles are received via the `/detection` topic.
 
-The primary function of the Environment Model is to fuse data from various perception sources to create an accurate and real-time representation of the driving environment for the car. It processes odometry to understand vehicle dynamics, integrates map data to localize obstacles and lanes, and uses detection data to recognize dynamic and static objects, including traffic signals and pedestrians. This enables the car to make safe and informed decisions while navigating complex environments such as urban roads.
+The primary function of the Environment Model is to fuse data from various perception sources to create an accurate and real-time representation of the driving environment for the car. It processes odometry to understand vehicle dynamics and localize detected objects.
 
-The Environment Model node provides 2 outputs to other functional modules. `/detected_objects_pos` provides the real world coordinates of the detected objects with respect to v2x frame in Model Car. `/lane_obstacle_info` provides data related to lane and obstacles with respect to base link in Model Car. 
+The Environment Model node provides 1 output to other functional modules. `/detected_objects_pos` provides the real world coordinates of the detected objects with respect to v2x frame in Model Car.
 
 ### Functionalities:
 
@@ -59,10 +59,8 @@ The Environment Model node provides 2 outputs to other functional modules. `/det
 graph LR
     subgraph Input topics
         EVSEAL["/odom"]:::grayEllipse
-        MS["/static_map"]:::grayEllipse
         OD["/obstacles"]:::grayEllipse
         ODM["/detection"]:::grayEllipse
-        LD["/lane_info"]:::grayEllipse
         D["/aligned_depth_to_color/image_raw"]:::grayEllipse
         
         
@@ -71,17 +69,13 @@ graph LR
     EM["environment_model"]:::cyanEllipse
 
     EVSEAL --> EM
-    MS --> EM
     OD --> EM
     ODM --> EM
     D --> EM
-    LD --> EM
     EM --> DOP
-    EM --> LOI
 
     subgraph Output topics
         DOP["/detected_objects_pos"]:::grayEllipse
-        LOI["/lane_obstacle_info"]:::grayEllipse
     end
 
     %% Ellipse shape class
@@ -112,16 +106,13 @@ graph LR
 | Name                          |IO | Type                 | Description                                                              |
 |------------------------------|-----|-----------------|--------------------------------------------------------------------------|
 | `/odom`    | Input |`nav_msgs/msg/Odometry.msg`      | Provides position and velocity of ego vehicle                    |
-| `/static_map`  |Input |`nav_msgs/msg/OccupancyGrid.msg`      | Provides 2-D grid map                    |
 | `/obstacles`     | Input|`custom_msgs/msg/ObstacleDetectionArray.msg`      | Provides angles and ranges                    |
 | `/detection`    |Input |`vision_msgs/msg/Detection2DArray.msg`      | Array of 2D detecttions with class labels and confidence score                    |
-| `/lane_info`      | Input|`custom_msgs/msg/LaneInfo.msg`      | Contains detected left, right, and center lane boundaries, angle, curvature,width, and confidence.                  |
 | `/detected_objects_pos`| Output | `custom_msgs/msg/DetectedObjectsPositionArray.msg`      | Provides the real world coordinates of the detected objects with respect to v2x frame in Model Car.                   |                   |
 | `/lane_obstacle_info` | Output |`custom_msgs/msg/LaneObstacleArray.msg`      | Provides data related to lane and obstacles with respect to base link in Model Car.                    |
 
 ### Custom messages:
-#### Message: [`ObstacleDetectionArray.msg`](https://git.hs-coburg.de/pax_auto/obstacle_detection#message-obstacledetectionarraymsg)
-#### Message: [`LaneInfo.msg`](https://git.hs-coburg.de/pax_auto/lane_detection#message-laneinfomsg)
+#### Message: [`ObstacleDetectionArray.msg`](https://github.com/surendrakoganti/obstacle_detection#custom-messages)
 #### Message: `DetectedObjectsPositionArray.msg`
 | Name                          | Type                 | Description                                                              |
 |------------------------------|----------------------|--------------------------------------------------------------------------|
@@ -138,12 +129,6 @@ graph LR
 |  `y` |  `int32` |  y coordinate (cm) of the detected object with respect to v2x frame       |
 |  `z` |  `int32` |   z coordinate (cm) of the detected object with respect to v2x frame          |
 
-#### Message: `LaneObstacleArray.msg`
-| Name                          | Type                 | Description                                                              |
-|------------------------------|----------------------|--------------------------------------------------------------------------|
-| `lane`      | [`custom_msgs/LaneInfo[]`](https://git.hs-coburg.de/pax_auto/lane_detection#message-laneinfomsg)      |   Contains detected left, right, and center lane boundaries, angle, curvature,width, and confidence with respect to base_link                 |
-|  `obstacles` |  [`custom_msgs/ObstacleDetectionData[]`](https://git.hs-coburg.de/pax_auto/obstacle_detection#message-obstacledetectiondatamsg) | Transformed obstacles from lidar frame to base_link    |
-
 ## 🛠️ Installation
 1. Create workspace, src and go to src
 ```bash
@@ -154,11 +139,11 @@ cd src
 ```
 2. Clone component repository
 ```bash
-git clone https://git.hs-coburg.de/pax_auto/environment_model.git
+git clone https://github.com/surendrakoganti/environment_model.git
 ```
 3. Clone additional repositories
 ```bash
-git clone https://git.hs-coburg.de/pax_auto/custom_msgs.git
+git clone https://github.com/surendrakoganti/custom_msgs.git
 git clone https://git.hs-coburg.de/Autonomous_Driving/car_description.git
 ```
 4. Return to workspace and build the packages
